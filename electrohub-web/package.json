@@ -1,0 +1,38 @@
+Para que los cambios que realices en tu sitio web se reflejen en la página pública, generalmente debes seguir una serie de pasos. Aquí te dejo una guía básica que puedes adaptar según la plataforma o el sistema que estés utilizando:
+
+### 1. **Realiza los Cambios Localmente**
+   - Abre tu editor de código o el sistema de gestión de contenido (CMS) que estés utilizando.
+   - Realiza los cambios necesarios en el contenido, diseño o funcionalidad de tu sitio.
+
+### 2. **Prueba los Cambios**
+   - Antes de publicar, asegúrate de probar los cambios en un entorno local o de desarrollo.
+   - Verifica que todo funcione correctamente y que no haya errores.
+
+### 3. **Guarda los Cambios**
+   - Guarda todos los archivos modificados.
+   - Si estás utilizando un sistema de control de versiones (como Git), asegúrate de hacer un commit de tus cambios.
+
+### 4. **Sube los Cambios al Servidor**
+   - Si trabajas con un servidor web, utiliza un cliente FTP (como FileZilla) o la herramienta de despliegue de tu CMS para subir los archivos modificados al servidor.
+   - Si usas Git, puedes hacer un push a tu repositorio remoto.
+
+### 5. **Actualiza la Base de Datos (si es necesario)**
+   - Si tus cambios incluyen modificaciones en la base de datos, asegúrate de ejecutar las migraciones necesarias o actualizar la base de datos manualmente.
+
+### 6. **Limpia la Caché**
+   - Si tu sitio utiliza caché (ya sea a nivel de servidor o a través de un plugin), asegúrate de limpiar la caché para que los cambios se reflejen inmediatamente.
+
+### 7. **Verifica en la Página Pública**
+   - Accede a tu sitio web en un navegador y verifica que los cambios se hayan aplicado correctamente.
+   - Prueba diferentes navegadores y dispositivos para asegurarte de que todo se vea bien.
+
+### 8. **Monitorea el Rendimiento**
+   - Después de publicar, monitorea el rendimiento del sitio para asegurarte de que no haya problemas.
+
+### 9. **Realiza Copias de Seguridad**
+   - Es recomendable hacer copias de seguridad de tu sitio antes y después de realizar cambios significativos.
+
+### 10. **Comunica los Cambios (si es necesario)**
+   - Si los cambios son significativos, considera comunicarlo a tus usuarios a través de un anuncio en el sitio o en tus redes sociales.
+
+Recuerda que estos pasos pueden variar dependiendo de la tecnología y el entorno que estés utilizando. Si tienes un sistema específico en mente, házmelo saber y puedo darte pasos más detallados.

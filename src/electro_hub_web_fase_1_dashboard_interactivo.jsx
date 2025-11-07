@@ -8,6 +8,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Download, RotateCcw, Info, CheckCircle2, XCircle } from 'lucide-react';
 import './styles/electrohub.css';
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 /**
  * ElectroHub — Fase 1 (Dashboard Interactivo)
@@ -384,6 +386,32 @@ export default function ElectroHubDashboard() {
           <Button variant="outline" onClick={resetAll}><RotateCcw className="mr-2 h-4 w-4"/>Reset</Button>
         </div>
       </div>
+
+      {/* MANUAL PARA INGENIEROS (explicación integrada) */}
+      <Card className="shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-lg font-semibold">Manual para ingenieros — Cómo usar esta herramienta</div>
+              <ol className="list-decimal ml-5 mt-2 text-sm space-y-1">
+                <li><b>Parámetros globales:</b> fije V_LL, % de reserva y Z% del transformador; si CFE entrega Scc_PCC, introdúzcalo para calcular la impedancia de la red.</li>
+                <li><b>Pestaña Cargas:</b> edite Cant, kW, DF y FP por grupo. Verifique kW y kVA escalados y el PF_total (impacta selección de trafo).</li>
+                <li><b>Pestaña Trafo:</b> revisa S_kVA sugerido, I_FL e Icc (solo trafo y con red). Ajuste reserva o Z% si el trafo no cumple requisitos térmicos/TCC.</li>
+                <li><b>Pestaña Alimentadores (ΔV):</b> para cada circuito defina P[kW], FP, L[m] y conductor; active "usar catálogo" o capture R/X desde Tabla 9 (NOM‑001). Revise ΔV[%] y sugerencias de calibre.</li>
+                <li><b>Pestaña Icc:</b> use Icc extremo para coordinar protección (curvas TCC) y validar Icu/Ics de interruptores.</li>
+                <li><b>Pestaña Armónicos:</b> capture |Zth(h)| e Ih(h) por armónico; la app calcula |Vh| y THD_V respecto a V1.</li>
+                <li><b>Pestaña Tierras:</b> introduzca lecturas Wenner (a,R) para estimar ρ; use la sección de varillas para calcular Rg (fórmula de Dwight).</li>
+                <li><b>Export/Report:</b> - JSON: traza completa con metadatos (áreas). - CSV: tablas por entidad. - Reporte (PDF): genera el reporte extendido con tablas y gráficas.</li>
+                <li className="text-xs text-gray-500">Notas: tablas R/X y ampacidades son referenciales; para entrega oficial sustituya por tabla NOM‑001 y valide medidas in‑situ (IEEE 81 para tierras).</li>
+              </ol>
+            </div>
+            <div className="flex flex-col gap-2 shrink-0 ml-4">
+              <Button variant="outline" onClick={()=>{navigator.clipboard?.writeText(window.location.href); alert('URL copiada al portapapeles');}}>Copiar URL</Button>
+              <Button onClick={openReport}>Generar PDF</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* KPIs */}
       <div className="grid md:grid-cols-3 gap-4">
@@ -1055,9 +1083,7 @@ function csvImport(e, kind) {
  * Función para abrir y generar el reporte en una nueva ventana
  */
 function openReport() {
-  const win = window.open('', '_blank');
-  if (!win) return;
-
+  // Genera el HTML (igual que antes)
   const now = new Date().toLocaleString();
   const style = `<style>
     body{font-family:ui-sans-serif,system-ui,Segoe UI,Roboto;line-height:1.4;padding:24px;color:#111}
@@ -1068,10 +1094,9 @@ function openReport() {
     thead th{background:#f3f4f6}
   </style>`;
 
+  // Usa las mismas variables defensivas del openReport original
   const fmt = (n, d = 2) => (Number.isFinite(Number(n)) ? Number(n).toFixed(d) : '');
-
-  // defensivas: asegurar que las estructuras existen
-  const D = typeof demanda !== 'undefined' ? demanda : { rows: [], sumkW: 0, sumkVA: 0, PF_total: 0 };
+   const D = typeof demanda !== 'undefined' ? demanda : { rows: [], sumkW: 0, sumkVA: 0, PF_total: 0 };
   const FC = Array.isArray(feedersCalc) ? feedersCalc : [];
   const H = typeof harmCalc !== 'undefined' ? harmCalc : { rows: [], THD_V: 0 };
   const W = typeof wennerCalc !== 'undefined' ? wennerCalc : { rows: [] };
@@ -1099,36 +1124,14 @@ function openReport() {
   ).join('');
 
   const wenRows = (W.rows || []).map(r =>
-    `<tr><td style="text-align:right">${r.a||''}</td><td style="text-align:right">${r.R||''}</td><td style="text-align:right">${fmt(rho,1)}</td></tr>`
+    `<tr><td style="text-align:right">${r.a||''}</td><td style="text-align:right">${r.R||''}</td><td style="text-align:right">${fmt(r.rho,1)}</td></tr>`
   ).join('');
-
-  const formulas = `
-    <ul>
-      <li>Sugerido trafo: S = Σ(kW/FP)·(1+Reserva)</li>
-      <li>I<sub>FL</sub> = S·1000/(√3·V<sub>LL</sub>)</li>
-      <li>I<sub>cc,trafo</sub> = I<sub>FL</sub>·(100/Z%)</li>
-      <li>Z<sub>red</sub> = V<sub>LL</sub><sup>2</sup>/(Scc<sub>PCC</sub>·1000)</li>
-      <li>I<sub>cc,origen</sub> = V<sub>LL</sub>/(√3·(Z<sub>red</sub> + Z<sub>traf</sub>))</li>
-      <li>ΔV% ≈ (√3·I·(R·cosφ + X·senφ)·L)/V<sub>LL</sub>·100</li>
-      <li>ρ = 2π·a·R (Wenner)</li>
-      <li>R₁ ≈ ρ/(2πL)·(ln(8L/d) − 1) (Dwight)</li>
-    </ul>`;
-
-  const refs = `
-    <ul>
-      <li>NOM-001-SEDE (Art. 215, 220, 240, 250, 310, 625, 690).</li>
-      <li>IEEE Std 142-1991 (Green Book) — Sistema de tierras.</li>
-           <li>IEEE Std 242-1986 (Buff Book) — Cortocircuito y protecciones.</li>
-      <li>IEEE Std 519-2014 — Límites de armónicos (THD/TDD).</li>
-      <li>Código de Red 2.0 — Criterios de confiabilidad y calidad.</li>
-    </ul>`;
 
   const maxDV = FC.length ? Math.max(...FC.map(f => Number(f.dV || 0))) : 0;
 
-
   const html = `<!doctype html><html><head><meta charset='utf-8'><title>ElectroHub — Reporte Fase 1</title>${style}</head><body>
     <h1>ElectroHub — Reporte Fase 1</h1>
-    <small
+    <small>${now}</small>
     <h2>Resumen ejecutivo</h2>
     <p>
       Demanda: <b>${fmt(D.sumkW,1)} kW / ${fmt(D.sumkVA,1)} kVA</b>.
@@ -1152,16 +1155,62 @@ function openReport() {
     <h2>Tierras</h2>
     <table><thead><tr><th>a [m]</th><th>R [Ω]</th><th style="text-align:right">ρ [Ω·m]</th></tr></thead><tbody>${wenRows}</tbody></table>
 
-    <h2>Fórmulas</h2>${formulas}
-    <h2>Referencias</h2>${refs}
     </body></html>`;
 
-  win.document.write(html);
-  win.document.close();
-  win.focus();
+  // Crea contenedor oculto, añádelo al DOM
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '1000px'; // ancho de render (ajustable)
+  container.innerHTML = html;
+  document.body.appendChild(container);
 
-  // imprimir tras breve retardo para permitir renderizado
-  setTimeout(() => {
-    try { win.print(); } catch (e) { /* ignore */ }
-  }, 300);
+  // Espera a que el layout se aplique antes de capturar
+  setTimeout(async () => {
+    try {
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Dimensiones de la imagen en mm
+      const imgProps = { width: canvas.width, height: canvas.height };
+      const imgRatio = imgProps.width / imgProps.height;
+      const imgHeightMm = pdfWidth / imgRatio;
+
+      if (imgHeightMm <= pdfHeight) {
+        // entra en una sola página
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeightMm);
+      } else {
+        // multipágina: dividir por altura de página
+        let remainingHeight = canvas.height;
+        const pageCanvasHeight = Math.floor(canvas.width * (pdfHeight / pdfWidth)); // px por página
+        let y = 0;
+        while (remainingHeight > 0) {
+          const slice = document.createElement('canvas');
+          slice.width = canvas.width;
+          slice.height = Math.min(pageCanvasHeight, remainingHeight);
+          const ctx = slice.getContext('2d');
+          ctx.drawImage(canvas, 0, y, slice.width, slice.height, 0, 0, slice.width, slice.height);
+          const sliceData = slice.toDataURL('image/png');
+          const sliceHeightMm = (slice.height * pdfWidth) / slice.width;
+          pdf.addImage(sliceData, 'PNG', 0, 0, pdfWidth, sliceHeightMm);
+          remainingHeight -= slice.height;
+          y += slice.height;
+          if (remainingHeight > 0) pdf.addPage();
+        }
+      }
+
+      pdf.save(`ElectroHub_Reporte_${Date.now()}.pdf`);
+    } catch (err) {
+      console.error("PDF export error:", err);
+      alert("Error al generar PDF. Intenta actualizar la página o usa imprimir (Ctrl+P).");
+    } finally {
+      // limpiar
+      document.body.removeChild(container);
+    }
+  }, 150);
 }
