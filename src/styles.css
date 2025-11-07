@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables y estilos base */
+:root {
+  --eh-bg: #030712;
+  --eh-card: #1f2937;
+  --eh-accent: #10b981;
+  --eh-text: #f3f4f6;
+  --eh-text-muted: #9ca3af;
+}
+
+@layer base {
+  body {
+    @apply bg-gradient-to-b from-gray-950 to-gray-900 text-gray-100 min-h-screen;
+  }
+}
+
+@layer components {
+  /* Mejoras de contraste para inputs */
+  .eh-input {
+    @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400
+           focus:border-emerald-500 focus:ring-emerald-500/30;
+  }
+
+  /* Mejoras para tablas */
+  .eh-table th {
+    @apply bg-gray-800/50 text-gray-300 font-medium;
+  }
+  .eh-table td {
+    @apply text-gray-100;
+  }
+  .eh-table tr:hover td {
+    @apply bg-gray-800/50;
+  }
+
+  /* Mejoras para pestañas */
+  .eh-tab {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors
+           hover:bg-gray-800 hover:text-white;
+  }
+  .eh-tab[aria-selected="true"] {
+    @apply bg-emerald-600 text-white shadow-lg shadow-emerald-600/20;
+  }
+
+  /* Mejoras para badges y etiquetas */
+  .eh-badge {
+    @apply px-2 py-0.5 text-xs rounded-full bg-gray-800 text-gray-200 
+           border border-gray-700;
+  }
+  .eh-label {
+    @apply text-gray-300 font-medium;
+  }
+
+  /* Mejoras para cards */
+  .eh-card {
+    @apply bg-gray-800/90 backdrop-blur border border-gray-700/50 
+           shadow-xl rounded-xl;
+  }
+}

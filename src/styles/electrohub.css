@@ -1,0 +1,90 @@
+:root{
+  --bg-1: rgba(7,12,20,1);
+  --card-bg: rgba(255,255,255,0.02);
+  --muted: rgba(255,255,255,0.06);
+  --accent: #60a5fa; /* azul suave */
+  --accent-2: #7dd3fc; /* cyan */
+  --glass: rgba(255,255,255,0.03);
+}
+
+.eh-root{
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, rgba(2,6,23,1) 0%, rgba(8,11,20,0.95) 40%, rgba(6,9,16,0.9) 100%);
+  color: #e6eef8;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Header */
+.eh-root .header{
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding-bottom: 8px;
+  gap: 12px;
+}
+.eh-root h1 { font-size: 1.25rem; }
+
+/* Cards: unify visual */
+.eh-root .shadow-sm{
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 8px 24px rgba(2,6,23,0.55);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Card content padding */
+.eh-root .p-4, .eh-root .p-3 { background: linear-gradient(180deg, transparent, rgba(255,255,255,0.01)); }
+
+/* Tables */
+.eh-root table { width:100%; border-collapse: collapse; font-size:0.95rem; }
+.eh-root th {
+  text-align:left;
+  padding:10px 12px;
+  color: #cbd5e1;
+  font-weight:600;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.eh-root td {
+  padding:10px 12px;
+  color: #e6eef8;
+  vertical-align: middle;
+  border-bottom: 1px dashed rgba(255,255,255,0.02);
+}
+.eh-root tbody tr:hover td { background: rgba(255,255,255,0.01); }
+
+/* Inputs & Switches — suavizar */
+.eh-root input[type="number"], .eh-root input[type="text"], .eh-root input[type="file"],
+.eh-root .h-8 {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #e6eef8;
+  padding: 6px 10px;
+  border-radius: 8px;
+  outline: none;
+}
+.eh-root input:focus { box-shadow: 0 0 0 4px rgba(96,165,250,0.06); border-color: var(--accent); }
+
+/* Buttons */
+.eh-root button {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight:600;
+  letter-spacing:0.2px;
+}
+.eh-root button:hover { transform: translateY(-1px); transition: all .12s ease; }
+.eh-root .btn-primary, .eh-root .variant-default { background: linear-gradient(90deg,var(--accent),var(--accent-2)); color: #04233a; }
+
+/* Small visual helpers */
+.eh-root .text-sm { color: #9fb3d6; }
+.eh-root .font-medium { color: #f1f7ff; }
+.eh-root .area-badge { opacity:0.95; }
+
+/* KPI emphasys */
+.eh-root .kpi { font-size: 1.125rem; font-weight:700; color: #ffffff; }
+
+/* Responsive tweaks */
+@media (max-width: 900px){
+  .eh-root { padding: 14px; }
+  .eh-root .max-w-7xl { width: 100%; padding: 0 6px; }
+}
