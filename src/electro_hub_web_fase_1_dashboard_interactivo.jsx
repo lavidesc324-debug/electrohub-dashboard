@@ -131,6 +131,21 @@ export default function ElectroHubDashboard() {
   const [wenner, setWenner] = useState([{a:1,R:""},{a:2,R:""},{a:4,R:""},{a:8,R:""},{a:16,R:""},{a:32,R:""}]);
   const [rodDesign, setRodDesign] = useState({ rhoOverride:"", L:2.4, d_mm:16, n:8, s:2.4, RgTarget: DEFAULTS.targetRg });
 
+  // Añadir tema oscuro/claro
+  const [theme, setTheme] = useState('dark');
+
+  // Añadir búsqueda en tablas
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Añadir ordenamiento de columnas
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+
+  // Añadir filtros rápidos
+  const [filters, setFilters] = useState({
+    showWarnings: false,
+    showSuggestions: false
+  });
+
   // --------- Self-tests (básicos) ---------
   useEffect(()=>{ runSelfTests(); },[]);
 
@@ -871,6 +886,33 @@ export default function ElectroHubDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Botones flotantes para subir y tema */}
+      <div className="fixed bottom-4 right-4 flex gap-2">
+        <Button 
+          variant="outline" 
+          onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+        >
+          ↑
+        </Button>
+        
+        <Button
+          variant={theme === 'dark' ? 'default' : 'outline'}
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </Button>
+      </div>
+
+      {/* Barra de búsqueda */}
+      <div className="mb-4">
+        <Input
+          placeholder="Buscar..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full max-w-sm"
+        />
+      </div>
     </div>
   );
 }
@@ -1076,7 +1118,7 @@ function openReport() {
     <ul>
       <li>NOM-001-SEDE (Art. 215, 220, 240, 250, 310, 625, 690).</li>
       <li>IEEE Std 142-1991 (Green Book) — Sistema de tierras.</li>
-      <li>IEEE Std 242-1986 (Buff Book) — Cortocircuito y protecciones.</li>
+           <li>IEEE Std 242-1986 (Buff Book) — Cortocircuito y protecciones.</li>
       <li>IEEE Std 519-2014 — Límites de armónicos (THD/TDD).</li>
       <li>Código de Red 2.0 — Criterios de confiabilidad y calidad.</li>
     </ul>`;
